@@ -35,6 +35,7 @@ std::string token_as_string(enum TokenKind tokenKind) {
         case SLASH_EQ: return "SLASH_EQ";
         case STAR_EQ: return "STAR_EQ";
         case DIV_EQ: return "DIV_EQ";
+        case MOD_EQ: return "MOD_EQ";
         case L_BRACKET: return "L_BRACKET";
         case R_BRACKET: return "R_BRACKET";
         case L_CURLY: return "L_CURLY";
@@ -42,6 +43,7 @@ std::string token_as_string(enum TokenKind tokenKind) {
         case L_PAREN: return "L_PAREN";
         case R_PAREN: return "R_PAREN";
         case PLUS: return "PLUS";
+        case MINUS: return "MINUS";
         case DASH: return "DASH";
         case SLASH: return "SLASH";
         case STAR: return "STAR";
@@ -266,22 +268,25 @@ TokenKind read_arithmatic(Tokenizer* t){
         if (s == "&&") kind = AND;
         if (s == "|=") kind = BIT_OR_EQ;
         if (s == "&=") kind = BIT_AND_EQ;
+
+        if (kind != NONE) {
+            t->pos++;
+            return kind;
+        }
     }
 
-    if (kind == NONE) {
-        if (c == '+') kind = PLUS;
-        if (c == '-') kind = MINUS;
-        if (c == '*') kind = STAR;
-        if (c == '/') kind = DIV;
+    if (c == '+') return PLUS;
+    if (c == '-') return MINUS;
+    if (c == '*') return STAR;
+    if (c == '/') return DIV;
 
-        if (c == '>') kind = GREATER;
-        if (c == '<') kind = LESS;
-        if (c == '=') kind = ASSIGN;
-        if (c == '%') kind = MOD;
+    if (c == '>') return GREATER;
+    if (c == '<') return LESS;
+    if (c == '=') return ASSIGN;
+    if (c == '%') return MOD;
 
-        if (c == '|') kind = BIT_OR;
-        if (c == '&') kind = BIT_AND;
-    }else t->pos++;
+    if (c == '|') return BIT_OR;
+    if (c == '&') return BIT_AND;
 
     return kind;
 }
@@ -297,8 +302,6 @@ void tokenize(Tokenizer* t, std::vector<Token>* tokens) {
         char c = t->content[t->pos];
         int i = t->pos;
 
-        std::cout << c << " -- " << "\n";
-
         if (is_letter(c))           (*tokens).push_back(read_id(t, i));
         else if (is_digit(c))       (*tokens).push_back(Token(NUMBER, read_num(t), i));
         else if (c == '\"')         (*tokens).push_back(Token(STRING, read_string(t), i));
@@ -306,7 +309,14 @@ void tokenize(Tokenizer* t, std::vector<Token>* tokens) {
         else if (c == ':')          (*tokens).push_back(Token(COLON, "", i));
         else if (c == '.')          (*tokens).push_back(Token(DOT, "", i));
         else if (c == ',')          (*tokens).push_back(Token(COMMA, "", i));
+        else if (c == '(')          (*tokens).push_back(Token(L_PAREN, read_string(t), i));
+        else if (c == ')')          (*tokens).push_back(Token(R_PAREN, "", i));
+        else if (c == '{')          (*tokens).push_back(Token(L_CURLY, "", i));
+        else if (c == '}')          (*tokens).push_back(Token(R_CURLY, "", i));
+        else if (c == '[')          (*tokens).push_back(Token(L_BRACKET, "", i));
+        else if (c == ']')          (*tokens).push_back(Token(R_BRACKET, "", i));
         else if (is_arithmatic(c))  (*tokens).push_back(Token(read_arithmatic(t), "", i));
+        else std::cout << c << "\n";
 
         t->pos++;
     }

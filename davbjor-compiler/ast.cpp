@@ -205,7 +205,7 @@ class While : public Node {
 };
 
 /*
-CONDITIONALS
+COMPARISIONS
 
 NotEq, Eq, Less, LessEq, Greater, GreaterEq
 */
