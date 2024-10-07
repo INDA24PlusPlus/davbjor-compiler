@@ -1,9 +1,7 @@
 #include "ast.cpp"
+#include "lex.cpp"
 
-#include <iostream>
-#include <vector>
+int main() {    
 
-int main() {
-    
     return 0;
 }
