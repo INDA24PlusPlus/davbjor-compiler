@@ -1,5 +1,8 @@
-#include <string>
+#pragma once
 
+#include <string>
+#include <vector>
+#include <iostream>
 
 enum TokenKind {
     END_OF_FILE,
@@ -89,3 +92,31 @@ struct Tokenizer {
     Tokenizer(std::string c, int p) :
         content(c), pos(p) {};
 };
+
+std::string token_as_string(enum TokenKind tokenKind);
+
+bool is_whitespace(char c);
+
+bool is_newline(char c);
+
+bool is_digit(char c);
+
+bool is_letter(char c);
+
+bool is_arithmatic(char c);
+
+void print_tokens(std::vector<Token> tokens);
+
+void skip(Tokenizer* t);
+
+Token read_id(Tokenizer* t, int i);
+
+std::string read_num(Tokenizer* t);
+
+std::string read_string(Tokenizer* t);
+
+TokenKind read_arithmatic(Tokenizer* t);
+
+void tokenize(Tokenizer* t, std::vector<Token>* tokens);
+
+std::vector<Token> lex(std::string input);

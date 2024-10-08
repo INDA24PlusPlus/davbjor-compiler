@@ -1,8 +1,6 @@
-//#include "ast.cpp"
 #include "parser.cpp"
-//#include "lex.cpp"
-#include <iostream>
 
+#include <iostream>
 #include <vector>
 #include <string>
 

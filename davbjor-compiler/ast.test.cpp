@@ -1,4 +1,4 @@
-#include "ast.cpp"
+#include "ast.h"
 #include <iostream>
 
 int main() {

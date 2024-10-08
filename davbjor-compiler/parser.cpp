@@ -1,5 +1,4 @@
-#include "ast.cpp"
-#include "lex.cpp"
+#include "parser.h"
 
 #include <vector>
 #include <string>
@@ -12,24 +11,6 @@ T: T {+- F} | F
 F: F {/* I } | I
 I: <identifier>
 */
-
-struct Parser {
-    public:
-        std::vector<Token> *tokens;
-        int pos;
-        Parser(std::vector<Token> *t, int p) : tokens(t), pos(p) {};
-        Token get_token(bool skip = false){
-            if (pos >= (*tokens).size()){
-                return Token(NONE, "", pos);
-            }
-            if (skip)next_token();
-            return (*tokens)[pos];
-        }
-        bool next_token(){
-            if (++pos >= (*tokens).size())return false;
-            return true;
-        }
-};
 
 int parse_i(Parser* parser){
     //std::cout << "READING INT : \n";
