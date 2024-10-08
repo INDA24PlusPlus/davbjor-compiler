@@ -10,13 +10,13 @@ int main() {
 
     Node *minus = new Minus(
         new Add(
-            new Number(&a), 
+            new Number(a), 
             new Assign(
-                new Number(&b), 
-                new Number(&d)
+                new Number(b), 
+                new Number(d)
             )
         ), 
-        new Number(&c)
+        new Number(c)
     );
 
     std::cout << (*minus).eval() << "\n";
@@ -33,11 +33,11 @@ int main() {
     int k = 3;
     Node *statement = new If(
         new Eq(
-            new Number(&x), 
-            new Number(&y)
+            new Number(x), 
+            new Number(y)
         ),
-        new Number(&z), 
-        new Number(&k)
+        new Number(z), 
+        new Number(k)
     );
     
     std::cout << (*statement).eval() << "\n";

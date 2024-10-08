@@ -337,30 +337,30 @@ Str, Number
 */
 class Str : public Node {
     public:
-        std::string *value;
+        std::string value;
         Str() {};
-        Str(std::string *v) : value(v) {};
+        Str(std::string v) : value(v) {};
         
         int eval() override {
             return 0;
         }
 
         std::string print() override {
-            return "\"" + *value + "\"";
+            return "\"" + value + "\"";
         }
 };
 
 class Number : public Node {
     public:
-        int *value;
+        int value;
         Number() {};
-        Number(int *v) : value(v) {};
+        Number(int v) : value(v) {};
         
         int eval() override {
-            return *value;
+            return value;
         }
 
         std::string print() override {
-            return std::to_string(*value);
+            return std::to_string(value);
         }
 };
