@@ -5,7 +5,7 @@
 #include <string>
 
 int main() {
-    std::string code = "1 + 5 * 3 - 2 / 4 - 1";
+    std::string code = "((-(1) + ((5 * (6 - 2)) / 4)) - -(1))";
     std::cout << code << "\n";
 
     auto tokens = lex(code);

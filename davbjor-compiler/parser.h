@@ -29,13 +29,19 @@ struct Parser {
             if (++pos >= (*tokens).size())return false;
             return true;
         }
+        void bug(){
+            throw std::invalid_argument( "unexpected token at: "+pos );
+        }
 };
 
-int parse_i(Parser* parser);
+Node* parse_i(Parser* parser);
 
-Node* parse_f(Parser* parser);
+Node* parse_u(Parser* parser);
 
+Node* parse_f(Parser* parser, Node* first_f);
 
-Node* parse_t(Parser* parser);
+Node* parse_t(Parser* parser, Node* first_t);
+
+Node* parse_p(Parser* parser);
 
 Node* parse_e(Parser* parser);

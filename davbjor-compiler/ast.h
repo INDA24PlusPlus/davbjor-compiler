@@ -126,6 +126,23 @@ class Not : public Node {
 };
 
 
+class Neg : public Node {
+    public:
+        Node *value;
+        Neg() {};
+        Neg(Node *v) : value(v) {};
+        
+        int eval() override {
+            int v = -(*value).eval();
+            return v;
+        }
+
+        std::string print() override {
+            std::string v = (*value).print();
+            return "-(" + v + ")";
+        }
+};
+
 class Assign : public Node {
     public:
         Node *id;
