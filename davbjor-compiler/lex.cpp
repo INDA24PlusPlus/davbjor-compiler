@@ -264,6 +264,7 @@ TokenKind read_arithmatic(Tokenizer* t){
         if (s == "<=") kind = LESS_EQ;
         if (s == "%=") kind = MOD_EQ;
         if (s == "==") kind = EQ;
+        if (s == "!=") kind = NOT_EQ;
 
         if (s == "||") kind = OR;
         if (s == "&&") kind = AND;
