@@ -73,6 +73,7 @@ enum TokenKind {
     EXPORT,
     TYPEOF,
     IN,
+    PRINT,
 
     NONE,
 };

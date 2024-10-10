@@ -52,6 +52,17 @@ int main() {
 
     std::cout << "eval:  " << (*expr2).eval() << "\n";
     std::cout << "print: " <<(*expr2).print() << "\n";*/
+
+
+    std::string code2 = "let a = 4 + 3; print(a + 1); a = a + 1; print(a + 1)";
+    std::cout << "\n\n" << code2 << "\n";
+
+    auto tokens2 = lex(code2);
+
+    Node* expr2 = parse(&tokens2);
+
+    std::cout << "eval:  " << (*expr2).eval() << "\n";
+    std::cout << "print: " <<(*expr2).print() << "\n";
     
 
     return 0;

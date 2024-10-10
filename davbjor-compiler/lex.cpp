@@ -65,6 +65,7 @@ std::string token_as_string(enum TokenKind tokenKind) {
         case EXPORT: return "EXPORT";
         case TYPEOF: return "TYPEOF";
         case IN: return "IN";
+        case PRINT: return "PRINT";
         default: return "NONE";
     }
 }
@@ -174,6 +175,8 @@ Token read_id(Tokenizer* t, int i){
 
         while(t->pos < n && is_letter(c)){
             s.push_back(c);
+            
+            if (t->pos + 1 == n || !is_letter(t->content[t->pos+1])) break;
             c = t->content[++(t->pos)];
         }
     }
@@ -193,7 +196,9 @@ Token read_id(Tokenizer* t, int i){
     if (s == "export") return Token(EXPORT, "", i);
     if (s == "typeof") return Token(TYPEOF, "", i);
     if (s == "in") return Token(IN, "", i);
+    if (s == "print") return Token(PRINT, "", i);
 
+    --(t->pos);
     return Token(IDENTIFIER, s, i);
 
 }

@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <map>
 
 class Node {
     Node *value;
@@ -8,13 +9,58 @@ class Node {
         Node *right;
         Node() {}
         Node(Node *v) : value(v) {}
+        Node(Node *l, Node* r) : left(l), right(r) {}
 
         virtual int eval() {
+            if (left != nullptr)left->eval();
+            if (right != nullptr)right->eval();
             return (*value).eval();
         }
 
         virtual std::string print() {
             return (*value).print();
+        }
+};
+
+
+class Id : public Node {
+    public:
+        std::string name;
+        std::map<std::string, int,std::less<>>* table;
+        Id() { };
+        Id(std::string n, std::map<std::string, int, std::less<>>* t) : name(n), table(t) {};
+        
+        int eval() override {
+            int v = table->at(name);
+            
+            return v;
+        }
+
+        std::string print() override {
+            int v = table->at(name);
+
+            std::string s = (std::to_string(v));
+            return "(" + s + ")";
+        }
+};
+
+
+
+class Print : public Node {
+    public:
+        Node *value;
+        Print() {};
+        Print(Node *v) : value(v) {};
+        
+        int eval() override {
+            int v = (*value).eval();
+            std::cout << v << "\n";
+            return v;
+        }
+
+        std::string print() override {
+            std::string v = (*value).print();
+            return "(print(" + v + "))";
         }
 };
 
