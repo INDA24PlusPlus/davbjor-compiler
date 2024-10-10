@@ -12,13 +12,23 @@ class Node {
         Node(Node *l, Node* r) : left(l), right(r) {}
 
         virtual int eval() {
-            if (left != nullptr)left->eval();
-            if (right != nullptr)right->eval();
-            return (*value).eval();
+            int x = 0;
+            if (left != nullptr)x = left->eval();
+            if (right != nullptr)x = right->eval();
+            if (value != nullptr)x = value->eval();
+            return x;
         }
 
         virtual std::string print() {
-            return (*value).print();
+            std::string s = "";
+            
+            if (left != nullptr)s += left->print();
+            if (right != nullptr)s += right->print();
+            if (value != nullptr)s += value->print();
+            return s;
+        }
+        virtual void update(int v) {
+            return;
         }
 };
 
@@ -35,12 +45,14 @@ class Id : public Node {
             
             return v;
         }
-
         std::string print() override {
             int v = table->at(name);
 
             std::string s = (std::to_string(v));
             return "(" + s + ")";
+        }
+        void update(int v) override {
+            table->at(name) = v;
         }
 };
 
@@ -197,9 +209,11 @@ class Assign : public Node {
         Assign(Node *id, Node *v) : id(id), value(v) {};
         
         int eval() override {
-            id = value;
-            return (*value).eval();
+            id->update(value->eval());
+            
+            return id->eval();
         }
+
 
         std::string print() override {
             std::string v = (*value).print();

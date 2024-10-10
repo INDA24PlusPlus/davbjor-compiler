@@ -54,7 +54,7 @@ int main() {
     std::cout << "print: " <<(*expr2).print() << "\n";*/
 
 
-    std::string code2 = "let a = 4 + 3; print(a + 1); a = a + 1; print(a + 1)";
+    std::string code2 = "let a = 4 + 3; print(a + 1); a /= 7; print(a + 1)";
     std::cout << "\n\n" << code2 << "\n";
 
     auto tokens2 = lex(code2);

@@ -4,6 +4,12 @@
 #include <string>
 #include <iostream>
 
+// TODO:
+// IMPLEMENT MOD, MOD_EQ
+
+// FIGURE OUT WHEN TO EVAL!!!
+// NEED TO EVAL EVERY STATEMENT, BUT CANT DO IT INSIDE NOT ACCESSIBLE IF STATEMENTS!!!
+
 // CONVERTING LEX TOKENS TO AST USING EBNF
 // TAIL RECURSIVE PARSER
 
@@ -187,12 +193,15 @@ Node* parse_paren(Parser* parser, std::map<std::string, int,std::less<>>* table)
     if (parser->get_token().kind == L_PAREN) {
         if(!parser->next_token())return first_p;
         // Read inside the parenthesis
-        first_p = parse_paren(parser, table);
+        first_p = parse_c(parser, table);
 
         // When the parenthesis is closing - look for if parenthesis can be used as term or factor
-        if (parser->get_token().kind != R_PAREN && parser->get_token().kind != END_OF_FILE){
+        if (parser->get_token().kind != R_PAREN && 
+            parser->get_token().kind != END_OF_FILE && 
+            parser->get_token().kind != L_CURLY ){
             //print_tokens(std::vector<Token>{parser->get_token()});
-            //std::cout << "dont close p -> " << first_p->print() << " = " << first_p->eval() << "\n";
+            //std::cout << "dont close p -> "  << " " << first_p->print() << " = " << first_p->eval() << "\n";
+            print_tokens(std::vector<Token>{parser->get_token()});
 
             if (parser->get_token().kind == STAR || parser->get_token().kind == DIV)
                 first_p = parse_f(parser, table, first_p);
@@ -272,32 +281,96 @@ Node* parse_s(Parser* parser, std::map<std::string, int,std::less<>>* table){
     Node* first_s;
 
     // ASSIGNING VARIABLES
-    if (parser->get_token().kind == IDENTIFIER && parser->state_machine(1).kind == ASSIGN){        
+    if (parser->get_token().kind == IDENTIFIER && (
+        parser->state_machine(1).kind == ASSIGN ||
+        parser->state_machine(1).kind == PLUS_EQ ||
+        parser->state_machine(1).kind == MINUS_EQ ||
+        parser->state_machine(1).kind == STAR_EQ ||
+        parser->state_machine(1).kind == DIV_EQ
+    )){        
+        //std::cout << "ASSIGNING: \n";
         // STORE VALUES
         std::string name = parser->get_token().value;
         int value = table->at(name);
 
         if(!parser->next_token())parser->bug();
-        // SKIP "="
+        
+        TokenKind kind = parser->get_token().kind;
         if(!parser->next_token())parser->bug();
 
-        value = parse_c(parser, table)->eval();
+        // Assume assignment
+        Node* next_v = parse_c(parser, table);
+
+        if (kind == PLUS_EQ)
+            next_v = new Add(new Number(value), next_v);
+        else if (kind == MINUS_EQ)
+            next_v = new Minus(new Number(value), next_v);
+        else if (kind == STAR_EQ)
+            next_v = new Mult(new Number(value), next_v);
+        else if (kind == DIV_EQ)
+            next_v = new Div(new Number(value), next_v);
 
         // ADD TO TABLE
-        table->at(name) = value;
+        //table->at(name) = next_v->eval();
     
         Node* id = new Id(name, table);
-        return new Assign(id, parse_c(parser, table));
+        return new Assign(id, next_v);
+    }
+
+    // IF STATEMENT
+    if (parser->get_token().kind == IF){        
+        if(!parser->next_token())parser->bug();
+
+
+        Node* c;
+        Node* then;
+
+        // Expect Parenthesis
+        if (parser->get_token().kind == L_PAREN) {
+
+            c = parse_paren(parser, table);
+
+            //std::cout << "parsed condition: " << c->print() << " = " << c->eval() << "\n";
+        }
+        // Otherwise bug
+        else parser->bug();
+
+        //std::cout << "AFTER L_PAREN \n";
+        
+        //print_tokens(std::vector<Token>{parser->get_token()});
+
+        // Expect Curly
+        //if (parser->get_token().kind == L_CURLY) {
+        //    if(!parser->next_token())parser->bug();
+
+
+        //std::cout << "INSIDE L_CURLY \n";
+
+        then = parse_b(parser, table);
+
+        // Expect Close Curly
+        /*if (parser->get_token().kind != R_CURLY) {
+            std::cout << "NOT CURLY!\n";
+        }else std::cout << "CURLY\n";*/
+
+        if(!parser->next_token())parser->bug();
+
+        Node* next_s = new If(c, then);
+        //next_s->eval();
+        return next_s;
     }
 
 
-    first_s = parse_c(parser, table);
+    first_s = parse_e(parser, table);
+    //first_s->eval();
     return first_s;
 }
 
 
 // parse block
 Node* parse_b(Parser* parser, std::map<std::string, int,std::less<>>* table){
+    //std::cout << "start block at : \n";
+    //print_tokens(std::vector<Token> {parser->get_token()});
     Node* first_b;
 
     // DECLARATION OF VARIABLES
@@ -330,9 +403,13 @@ Node* parse_b(Parser* parser, std::map<std::string, int,std::less<>>* table){
 
         // Expect Parenthesis
         if (parser->get_token().kind == L_PAREN) {
+            /*
             int value = parse_paren(parser, table)->eval();
-
-            std::cout << value << "\n";
+            */
+            Node* next_b = parse_paren(parser, table);
+            
+            //std::cout << "RETURN PRINT " << "\n";
+            return new Print(next_b);
         }
         // Read the next token
         else parser->bug();
@@ -343,10 +420,23 @@ Node* parse_b(Parser* parser, std::map<std::string, int,std::less<>>* table){
         if(!parser->next_token())parser->bug();
 
         Node* next_b = parse_b(parser, table);
+        /* ALMOST WORKS WHEN EVAL IS HERE!!!   */
+        next_b->eval();
         Node* first_b = new Node(first_b, next_b);
+        return first_b;
+    }
+
+    // END READ
+    if (parser->get_token().kind == R_CURLY || parser->get_token().kind == END_OF_FILE){ 
+        parser->next_token();
+
+        
+        //std::cout << "READ END \n";
+        return first_b;
     }
 
     first_b = parse_s(parser, table);
+    //first_b->eval();
 
     return first_b;
 }
@@ -356,10 +446,13 @@ Node* parse_p(Parser* parser, std::map<std::string, int,std::less<>>* table){
     Node* first_p = parse_b(parser, table);
 
     while(parser->get_token().kind != END_OF_FILE && parser->get_token().kind != NONE){
+        //first_p->eval();
         Node* next_p = parse_b(parser, table);
+        //next_p->eval();
         Node* first_p = new Node(first_p, next_p);
     }
 
+    //first_p->eval();
     return first_p;
 }
 
@@ -375,10 +468,10 @@ Node* parse(std::vector<Token>* tokens){
 P: B { B}
 B: 
    LET ID = C;
-   PRINT (ID / S) 
+   PRINT (ID | S) 
    S {; B}
 S: 
-   ID = C
+   ID {=, +=, -=, /=, *=} C
    "if" "(" C ")" "{" B "}" {"else" B}
    "while" "(" C ")" "{" B "}"
    C
