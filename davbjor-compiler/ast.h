@@ -76,6 +76,30 @@ class Print : public Node {
         }
 };
 
+
+
+class Assign : public Node {
+    public:
+        Node *id;
+        Node *value;
+        Assign() {};
+        Assign(Node *id, Node *v) : id(id), value(v) {};
+        
+        int eval() override {
+            int v = value->eval();
+            id->update(v);
+            //std::cout << "update ()" << value->eval() << "\n";
+
+            return id->eval();
+        }
+
+
+        std::string print() override {
+            std::string v = (*value).print();
+            return "(=" + v + ")";
+        }
+};
+
 /*
 Algebraic Operations
 
@@ -164,7 +188,7 @@ class Div : public Node {
 /*
 Unary Operations
 
-Not, Assign
+Not, Neg
 */
 class Not : public Node {
     public:
@@ -198,26 +222,6 @@ class Neg : public Node {
         std::string print() override {
             std::string v = (*value).print();
             return "-(" + v + ")";
-        }
-};
-
-class Assign : public Node {
-    public:
-        Node *id;
-        Node *value;
-        Assign() {};
-        Assign(Node *id, Node *v) : id(id), value(v) {};
-        
-        int eval() override {
-            id->update(value->eval());
-            
-            return id->eval();
-        }
-
-
-        std::string print() override {
-            std::string v = (*value).print();
-            return "(=" + v + ")";
         }
 };
 

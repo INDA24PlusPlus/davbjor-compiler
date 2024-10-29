@@ -223,6 +223,7 @@ std::string read_num(Tokenizer* t){
         }
     }
 
+    --(t->pos);
     return s;
 }
 

@@ -56,9 +56,9 @@ Node* parse_e(Parser* parser, std::map<std::string, int,std::less<>>* table);
 
 Node* parse_c(Parser* parser, std::map<std::string, int,std::less<>>* table);
 
-Node* parse_s(Parser* parser, std::map<std::string, int,std::less<>>* table);
+Node* parse_s(Parser* parser, std::map<std::string, int,std::less<>>* table, bool should_eval = false);
 
-Node* parse_b(Parser* parser, std::map<std::string, int,std::less<>>* table);
+Node* parse_b(Parser* parser, std::map<std::string, int,std::less<>>* table, bool should_eval = false);
 
 Node* parse_p(Parser* parser, std::map<std::string, int,std::less<>>* table);
 
