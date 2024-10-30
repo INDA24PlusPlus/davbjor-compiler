@@ -1,18 +1,4 @@
-#include "ast.h"
-#include "lex.cpp"
-
-#include <vector>
-#include <string>
-#include <iostream>
-#include <map>
-
-// CONVERTING LEX TOKENS TO AST USING EBNF
-/*
-E: T
-T: T {+- F} | F
-F: F {/* I } | I
-I: <identifier>
-*/
+#include "lex.h"
 
 struct Parser {
     public:
@@ -23,8 +9,15 @@ struct Parser {
             if (pos >= (*tokens).size())
                 return Token(NONE, "", pos);
             
+            Token t = tokens->at(pos);
             if (skip)next_token();
-            return tokens->at(pos);
+            return t;
+        }
+        void print_token(){
+            if (pos >= (*tokens).size())
+                return;
+            
+            print_tokens(std::vector<Token>{tokens->at(pos)});
         }
         bool next_token(){
             if (++pos >= (*tokens).size())return false;
@@ -42,24 +35,85 @@ struct Parser {
         }
 };
 
-Node* parse_i(Parser* parser, std::map<std::string, int,std::less<>>* table);
+struct Node {
+    TokenKind kind;
+    int value;
+    std::string name;
 
-Node* parse_u(Parser* parser, std::map<std::string, int,std::less<>>* table);
+    Node* left;
+    Node* right;
 
-Node* parse_f(Parser* parser, std::map<std::string, int,std::less<>>* table, Node* first_f);
+    Node() : kind(NONE) {}
+    Node(TokenKind k) : kind(k) {}
+    Node(TokenKind k, int v) : kind(k), value(v) {}
+    Node(TokenKind k, std::string n) : kind(k), name(n) {}
+    Node(TokenKind k, Node* l, Node* r) : kind(k), left(l), right(r) {}
 
-Node* parse_t(Parser* parser, std::map<std::string, int,std::less<>>* table, Node* first_t);
+    std::string print(){
+        if (kind == NONE)return "";
+        //print_tokens(std::vector<Token>{Token {kind,0,0}});
+        if (kind == NUMBER)return std::to_string(value); 
+        if (kind == IDENTIFIER)return name; 
+        if (kind == SEMICOLON){
+            //if (left == nullptr)return "";
+            //if (right == nullptr)return left->print();
+            //return left->print() + ";\n" + right->print();
+            std::string l = "";
+            std::string r = "";
+            if (left != nullptr)l = left->print();
+            if (right != nullptr)r = right->print();
+            //std::cout << "r => +" << r << "+\n";
+            if (l != "")l = l + ";\n";
+            if (r.at(r.size()-1) != '\n')r = r + ";\n";
+            return l + r;
+        }
+        if (kind == IF){
+            return "IF ( " + left->print() + " ) {\n " + right->print() + "}\n"; 
+        }
+        if(kind == WHILE){
+            return "WHILE ( " + left->print() + " ) {\n " + right->print() + "}\n"; 
+        }
+        if(kind == ASSIGN){
+            return left->print() + " = " + right->print(); 
+        }
+        if(kind == PRINT){
+            return "PRINT ( " + left->print() + " )"; 
+        }
 
-Node* parse_paren(Parser* parser, std::map<std::string, int,std::less<>>* table);
+        std::string c = "~";
+        if (kind == PLUS)c = "+";
+        if (kind == MINUS)c = "-";
+        if (kind == STAR)c = "*";
+        if (kind == DIV)c = "/";
+        if (kind == EQ)c = "==";
+        if (kind == NOT_EQ)c = "!=";
+        if (kind == LESS)c = "<";
+        if (kind == LESS_EQ)c = "<=";
+        if (kind == GREATER)c = ">";
+        if (kind == GREATER_EQ)c = ">=";
 
-Node* parse_e(Parser* parser, std::map<std::string, int,std::less<>>* table);
+        if (c == "~")return "";
+        
+        return "( " + left->print() + " " + c + " " + right->print() + " )";
+    }
+};
 
-Node* parse_c(Parser* parser, std::map<std::string, int,std::less<>>* table);
+Node* parse_i(Parser* parser);
 
-Node* parse_s(Parser* parser, std::map<std::string, int,std::less<>>* table, bool should_eval = false);
+Node* parse_u(Parser* parser);
 
-Node* parse_b(Parser* parser, std::map<std::string, int,std::less<>>* table, bool should_eval = false);
+Node* parse_f(Parser* parser);
 
-Node* parse_p(Parser* parser, std::map<std::string, int,std::less<>>* table);
+Node* parse_t(Parser* parser);
+
+Node* parse_c(Parser* parser);
+
+Node* parse_s(Parser* parser);
+
+Node* parse_b(Parser* parser);
+
+Node* parse_p(Parser* parser);
 
 Node* parse(std::vector<Token> *tokens);
+
+int main();
