@@ -92,6 +92,23 @@ bool is_arithmatic(char c) {
 }
 
 
+bool is_arithmatic_kind(TokenKind kind){
+    if (kind == PLUS)            { return true; }
+    else if (kind == MINUS)      { return true; }
+    else if (kind == STAR)       { return true; }
+    else if (kind == DIV)        { return true; }
+    else if (kind == EQ)         { return true; }
+    else if (kind == NOT_EQ)     { return true; }
+    else if (kind == LESS)       { return true; }
+    else if (kind == LESS_EQ)    { return true; }
+    else if (kind == GREATER)    { return true; }
+    else if (kind == GREATER_EQ) { return true; }
+
+    return false;
+
+}
+
+
 /*
 PRINTS A LIST OF TOKENS, AND VALUE OF THAT TOKEN IF IT IS OF RIGHT TYPE
 */
@@ -168,7 +185,7 @@ Token read_id(Tokenizer* t, int i){
     if (is_letter(c)) {
         s.push_back(c);
         
-        if (t->pos + 1 == n || !is_letter(t->content[t->pos+1])){
+        if (t->pos + 1 == n || !is_letter(t->content[(t->pos)+1])){
             return Token(IDENTIFIER, s, i);
         }
         c = t->content[++(t->pos)];
@@ -198,7 +215,7 @@ Token read_id(Tokenizer* t, int i){
     if (s == "in") return Token(IN, "", i);
     if (s == "print") return Token(PRINT, "", i);
 
-    --(t->pos);
+    //t->pos;
     return Token(IDENTIFIER, s, i);
 
 }
@@ -326,7 +343,7 @@ void tokenize(Tokenizer* t, std::vector<Token>* tokens) {
         else if (is_arithmatic(c))  (*tokens).push_back(Token(read_arithmatic(t), "", i));
         else std::cout << c << "\n";
 
-        t->pos++;
+        ++(t->pos);
     }
 }
 

@@ -25,6 +25,7 @@ struct Parser {
             return true;
         }
         void bug(){
+            std::cout << "BUG AT " << pos << " -> " << token_as_string((*tokens).at(pos).kind) << " -> " << ((*tokens).at(pos).value) << " => " << token_as_string((*tokens).at(pos+1).kind) <<  "\n";
             throw std::invalid_argument( "unexpected token at: "+pos );
         }
         Token state_machine(int steps){
@@ -49,35 +50,38 @@ struct Node {
     Node(TokenKind k, std::string n) : kind(k), name(n) {}
     Node(TokenKind k, Node* l, Node* r) : kind(k), left(l), right(r) {}
 
-    std::string print(){
+    std::string print(int indent = 0, bool parent_aritm = false){
         if (kind == NONE)return "";
         //print_tokens(std::vector<Token>{Token {kind,0,0}});
         if (kind == NUMBER)return std::to_string(value); 
         if (kind == IDENTIFIER)return name; 
         if (kind == SEMICOLON){
-            //if (left == nullptr)return "";
-            //if (right == nullptr)return left->print();
-            //return left->print() + ";\n" + right->print();
             std::string l = "";
             std::string r = "";
-            if (left != nullptr)l = left->print();
-            if (right != nullptr)r = right->print();
+            if (left != nullptr)
+                l = left->print(indent);
+            if (right != nullptr)
+                r = right->print(indent);
             //std::cout << "r => +" << r << "+\n";
-            if (l != "")l = l + ";\n";
-            if (r.at(r.size()-1) != '\n')r = r + ";\n";
+            //if (l != "")l = std::string(indent*4, ' ') + l;
+            if (l.at(l.size()-1) != '\n')l = std::string(indent*4, ' ') + l + ";\n";
+            if (r.at(r.size()-1) != '\n')r = std::string(indent*4, ' ') + r + ";\n";
             return l + r;
         }
         if (kind == IF){
-            return "IF ( " + left->print() + " ) {\n " + right->print() + "}\n"; 
+            return std::string(indent*4, ' ') +"if(" + left->print() + "){\n" + right->print(indent+1) + std::string(indent*4, ' ') + "}\n"; 
         }
         if(kind == WHILE){
-            return "WHILE ( " + left->print() + " ) {\n " + right->print() + "}\n"; 
+            return std::string(indent*4, ' ') +"while(" + left->print() + "){\n" + right->print(indent+1) + std::string(indent*4, ' ') + "}\n"; 
+        }
+        if(kind == LET){
+            return std::string(indent*4, ' ') + "int " + left->print() + " = " + right->print(indent+1) + ";\n"; 
         }
         if(kind == ASSIGN){
-            return left->print() + " = " + right->print(); 
+            return std::string(indent*4, ' ') + left->print() + " = " + right->print(indent+1) + ";\n"; 
         }
         if(kind == PRINT){
-            return "PRINT ( " + left->print() + " )"; 
+            return std::string(indent*4, ' ') +"std::cout << (" + left->print() + ") << \"\\n\";\n"; 
         }
 
         std::string c = "~";
@@ -94,7 +98,8 @@ struct Node {
 
         if (c == "~")return "";
         
-        return "( " + left->print() + " " + c + " " + right->print() + " )";
+        if (parent_aritm)return "( " + left->print(indent, true) + " " + c + " " + right->print(indent, true) + " )";
+        else return left->print(indent, true) + " " + c + " " + right->print(indent, true);
     }
 };
 

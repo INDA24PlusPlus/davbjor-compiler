@@ -40,10 +40,11 @@ Node* parse_u(Parser* parser){
 
     if (token.kind == MINUS){
         if (!parser->next_token())return self;
-
+        
         self->kind = MINUS;
         self->left = new Node(NUMBER, 0);
         self->right = parse_i(parser);
+        //std::cout << "UNARY\n";
         return self;
     }
 
@@ -119,6 +120,23 @@ Node* parse_s(Parser* parser){
     Token token = parser->get_token();
     Token next_token = parser->state_machine(1);
 
+
+    if (token.kind == LET){
+        if (!parser->next_token())parser->bug();
+        
+        token = parser->get_token();
+        next_token = parser->state_machine(1);
+
+        self->kind = LET;
+        self->left = new Node(token.kind, token.value);
+
+        if (!parser->next_token())parser->bug();
+        if (!parser->next_token())parser->bug();
+
+        self->right = parse_c(parser);
+        return self;
+    }
+
     if (token.kind == IDENTIFIER && next_token.kind == ASSIGN){
         self->kind = ASSIGN;
         self->left = new Node(token.kind, token.value);
@@ -129,7 +147,6 @@ Node* parse_s(Parser* parser){
         self->right = parse_c(parser);
         return self;
     }
-
 
     if (token.kind == IDENTIFIER && (
         next_token.kind == PLUS_EQ
@@ -190,6 +207,7 @@ Node* parse_b(Parser* parser){
         self->kind = token.kind;
         if (parser->get_token(true).kind != L_PAREN)parser->bug();
         self->left = parse_c(parser);
+        self->right = new Node();
         if (parser->get_token(true).kind != R_PAREN)parser->bug();
 
     }
