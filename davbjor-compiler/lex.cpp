@@ -146,7 +146,7 @@ void skip(Tokenizer* t) {
             }
             // skip past new line
             if (t->pos < n && is_newline(c))c = t->content[++(t->pos)];
-            
+            --(t->pos);
             // Continue to skip if neccesary
             skip(t);
             return;

@@ -1,0 +1,12 @@
+// FIBONACCI
+let a = 0;
+let b = 1;
+let i = 0;
+while(i < 28){
+    print(a);
+
+    b = a + b;
+    a = b - a;
+
+    i += 1;
+};
